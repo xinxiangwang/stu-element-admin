@@ -17,10 +17,10 @@ const componentsRouter = {
       meta: { title: 'XlColTest' }
     },
     {
-      path: 'xl-row',
-      component: () => import('@/views/components/xl-row'),
-      name: 'XlRow',
-      meta: { title: 'XlRow' }
+      path: 'xl-input',
+      component: () => import('@/views/components/xl-input'),
+      name: 'XlInput',
+      meta: { title: 'XlInput' }
     }
   ]
 }

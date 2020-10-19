@@ -11,7 +11,7 @@ export default {
         }
       }
       if (parent) {
-        
+        parent.$emit(eventName, params)
       }
     }
   }

@@ -40,7 +40,7 @@
   </label>
 </template>
 <script>
-import Emitter from 'element-ui/src/mixins/emitter'
+import Emitter from '@/mixins/emitter'
 export default {
   name: 'XlRadio',
   componentName: 'XlRadio',
@@ -51,11 +51,11 @@ export default {
     }
   },
   model: {
-    prop: 'radio',
-    event: 'radioChange'
+    prop: 'radioValue',
+    event: 'radioValueChange'
   },
   props: {
-    radio: {},
+    radioValue: {},
     label: {},
     disabled: Boolean,
     name: String,
@@ -65,13 +65,13 @@ export default {
   computed: {
     model: {
       get() {
-        return this.isGroup ? this._radioGroup.value : this.radio
+        return this.isGroup ? this._radioGroup.value : this.radioValue
       },
       set(val) {
         if (this.isGroup) {
-          this.dispatch('XlRadioGroup', 'input', [val])
+          this.dispatch('XlRadioGroup', 'input', val)
         } else {
-          this.$emit('radioChange', val)
+          this.$emit('radioValueChange', val)
         }
       }
     },
@@ -99,7 +99,6 @@ export default {
   },
   methods: {
     setParent(parent) {
-      console.log(this)
       this._radioGroup = parent
     }
   },

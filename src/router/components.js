@@ -21,6 +21,12 @@ const componentsRouter = {
       component: () => import('@/views/components/xl-input'),
       name: 'XlInput',
       meta: { title: 'XlInput' }
+    },
+    {
+      path: 'xl-form',
+      component: () => import('@/views/components/xl-form/'),
+      name: 'XlForm',
+      meta: { title: 'XlForm' }
     }
   ]
 }

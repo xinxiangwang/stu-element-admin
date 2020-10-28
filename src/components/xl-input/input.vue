@@ -67,9 +67,11 @@
   </div>
 </template>
 <script>
+import Emitter from '@/mixins/emitter'
 export default {
   name: 'XlInput',
   componentName: 'XlInput',
+  mixins: [Emitter],
   props: {
     type: {
       type: String,
@@ -103,6 +105,10 @@ export default {
     showWordLimit: {
       type: Boolean,
       default: false
+    },
+    validateEvent: {
+      type: Boolean,
+      default: true
     }
   },
   data() {
@@ -172,6 +178,10 @@ export default {
     onBlur(event) {
       this.focused = false
       this.$emit('blur', event)
+      console.log(this)
+      if (this.validateEvent) {
+        this.dispatch('XlFormItem', 'xl.form.blur', [this.value])
+      }
     },
     getInput() {
       return this.$refs.input || this.$refs.textarea

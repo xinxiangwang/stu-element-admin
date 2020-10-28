@@ -1,5 +1,10 @@
 <template>
-  <form class="el-form" :class="[]">
+  <form
+    class="el-form"
+    :class="[
+      labelPosition ? 'el-form--label-' + labelPosition : '',
+      { 'el-form--inline': inline }
+    ]">
     <slot></slot>
   </form>
 </template>
@@ -16,12 +21,13 @@ export default {
     model: Object,
     rules: Object,
     labelPosition: String,
-    labelWidth: String
+    labelWidth: String,
+    inline: Boolean
   },
   data() {
     return {
       fields: [],
-      potentialLabelWidthArr: []
+      potentialLabelWidthArr: [] // 存放label宽度
     }
   },
   computed: {
@@ -32,13 +38,13 @@ export default {
     }
   },
   created() {
-    this.$on('el.form.addField', (field) => {
+    this.$on('xl.form.addField', (field) => {
       if (field) {
-        this.field.push(field)
+        this.fields.push(field)
       }
     })
 
-    this.$on('el.form.removeField', (field) => {
+    this.$on('xl.form.removeField', (field) => {
       if (field.prop) {
         this.fileds.splice(this.fileds.indexOf(field), 1)
       }
@@ -46,12 +52,23 @@ export default {
   },
   methods: {
     registerLabelWidth(val, oldVal) {
-      console.log(val, oldVal)
       if (val && oldVal) {
-        console.log(oldVal)
+        const index = this.getLabelWidthIndex(oldVal)
+        this.potentialLabelWidthArr.splice(index, 1, val)
       } else if (val) {
         this.potentialLabelWidthArr.push(val)
       }
+    },
+    deregisterLabelWidth(val) {
+      const index = this.getLabelWidthIndex(val)
+      this.potentialLabelWidthArr.splice(index, 1)
+    },
+    getLabelWidthIndex(width) {
+      const index = this.potentialLabelWidthArr.indexOf(width)
+      if (index === -1) {
+        throw new Error()
+      }
+      return index
     }
   }
 }

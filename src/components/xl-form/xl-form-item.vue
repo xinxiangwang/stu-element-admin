@@ -1,15 +1,41 @@
 <template>
-  <div class="el-form-item">
+  <div
+    class="el-form-item"
+    :class="[{
+      'is-error': validateState === 'error',
+      'is-validateing': validateState === 'validateing',
+      'is-success': validateState === 'success'
+    }]"
+  >
     <labelWrap
       :is-auto-width="labelStyle && labelStyle.width === 'auto'"
-      :update-all="form.labelWidth === 'auto'">
-      <label class="el-form-item__label" :for="labelFor" v-if="label || $slots.label">
+      :update-all="form.labelWidth === 'auto'"
+    >
+      <label v-if="label || $slots.label" class="el-form-item__label" :for="labelFor">
         <slot name="label">{{ label }}</slot>
       </label>
     </labelWrap>
+    <div class="el-form-item__content">
+      <slot />
+      <transition name="el-zoom-in-top">
+        <slot
+          v-if="validateState === 'error' && showMessage && form.showMessage"
+          name="error"
+          :error="validateMessage"
+        >
+          <div
+            class="el-form-item__error"
+            :class="{}"
+          >
+            {{ validateMessage }}
+          </div>
+        </slot>
+      </transition>
+    </div>
   </div>
 </template>
 <script>
+import AsyncValidator from 'async-validator'
 import labelWrap from './label-wrap'
 import Emitter from '@/mixins/emitter'
 import { noop, getPropByPath } from '@/utils/util'
@@ -28,11 +54,17 @@ export default {
     required: {
       type: Boolean,
       defualt: undefined
+    },
+    showMessage: {
+      type: Boolean,
+      default: true
     }
   },
   data() {
     return {
-      validateDisabled: false
+      validateDisabled: false,
+      validateState: '',
+      validateMessage: ''
     }
   },
   computed: {
@@ -48,7 +80,7 @@ export default {
       }
       return ret
     },
-    fieldValue() {
+    fieldValue() { // el-form-item上prop对应el-form的model 的 初始值
       const model = this.form.model
       if (!model || !this.prop) return
       let path = this.prop
@@ -67,12 +99,52 @@ export default {
       return parent
     }
   },
+  mounted() {
+    if (this.prop) {
+      this.dispatch('XlForm', 'xl.form.addField', [this])
+      let initialValue = this.fieldValue
+      if (Array.isArray(initialValue)) {
+        initialValue = [].concat(initialValue)
+      }
+      Object.defineProperty(this, 'initialValue', {
+        value: initialValue
+      })
+      this.addValidateEvents()
+    }
+  },
   methods: {
-    validate(trigger, callback = noop) {
+    clearValidate() {
+      this.validateState = ''
+      this.validateMessage = ''
+      this.validateDisabled = false
+    },
+    validate(trigger, callback = noop) { // 用async-validate插件验证， 验证后通知el-form
       this.validateDisabled = false
       const rules = this.getFilteredRule(trigger)
+      console.log(rules)
+      if ((!rules || rules.length === 0) && this.required === undefined) {
+        callback()
+        return true
+      }
+      this.validateState = 'validating'
+      const descriptor = {}
+      if (rules && rules.length > 0) {
+        rules.forEach(rule => {
+          delete rule.trigger
+        })
+      }
+      descriptor[this.prop] = rules
+      const validator = new AsyncValidator(descriptor)
+      const model = {}
+      model[this.prop] = this.fieldValue
+      validator.validate(model, { firstFields: true }, (errors, invalidFields) => {
+        this.validateState = !errors ? 'success' : 'error'
+        this.validateMessage = errors ? errors[0].message : ''
+        callback(this.validateMessage, invalidFields)
+        this.elForm && this.elForm.$emit('validate')
+      })
     },
-    getRules() {
+    getRules() { // 获取到父组件el-form的rule和自己的
       let formRules = this.form.rules // Object
       const selfRules = this.rules // Object or Array
       const requiredRule = this.required !== undefined ? { required: !!this.required } : []
@@ -92,7 +164,6 @@ export default {
       }).map(rule => objectAssign({}, rule))
     },
     onFieldBlur() {
-      console.log('123')
       this.validate('blur')
     },
     onFieldChange() {
@@ -102,7 +173,7 @@ export default {
       }
       this.validate('change')
     },
-    addValidateEvents() {
+    addValidateEvents() { // 发布blur change 事件， 给input等组件触发
       const rules = this.getRules()
       if (rules.length || this.required !== undefined) {
         this.$on('xl.form.blur', this.onFieldBlur)
@@ -114,19 +185,6 @@ export default {
   provide() {
     return {
       xlFormItem: this
-    }
-  },
-  mounted() {
-    if (this.prop) {
-      this.dispatch('XlForm', 'xl.form.addField', [this])
-      let initialValue = this.fieldValue
-      if (Array.isArray(initialValue)) {
-        initialValue = [].concat(initialValue)
-      }
-      Object.defineProperty(this, 'initialValue', {
-        value: initialValue
-      })
-      this.addValidateEvents()
     }
   }
 }

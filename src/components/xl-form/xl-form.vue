@@ -4,8 +4,9 @@
     :class="[
       labelPosition ? 'el-form--label-' + labelPosition : '',
       { 'el-form--inline': inline }
-    ]">
-    <slot></slot>
+    ]"
+  >
+    <slot />
   </form>
 </template>
 <script>
@@ -22,11 +23,15 @@ export default {
     rules: Object,
     labelPosition: String,
     labelWidth: String,
-    inline: Boolean
+    inline: Boolean,
+    showMessage: {
+      type: Boolean,
+      default: true
+    }
   },
   data() {
     return {
-      fields: [],
+      fields: [], // 存放el-form-item
       potentialLabelWidthArr: [] // 存放label宽度
     }
   },
@@ -51,6 +56,13 @@ export default {
     })
   },
   methods: {
+    validate(callback) {
+      if (!this.model) {
+        return
+      }
+      let promise
+      // if (typeof callback !== 'function') {}
+    },
     registerLabelWidth(val, oldVal) {
       if (val && oldVal) {
         const index = this.getLabelWidthIndex(oldVal)

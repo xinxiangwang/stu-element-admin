@@ -121,7 +121,6 @@ export default {
     validate(trigger, callback = noop) { // 用async-validate插件验证， 验证后通知el-form
       this.validateDisabled = false
       const rules = this.getFilteredRule(trigger)
-      console.log(rules)
       if ((!rules || rules.length === 0) && this.required === undefined) {
         callback()
         return true
@@ -141,7 +140,9 @@ export default {
         this.validateState = !errors ? 'success' : 'error'
         this.validateMessage = errors ? errors[0].message : ''
         callback(this.validateMessage, invalidFields)
-        this.elForm && this.elForm.$emit('validate')
+        console.log(this.validateMessage)
+        console.log(invalidFields)
+        this.xlForm && this.xlForm.$emit('validate')
       })
     },
     getRules() { // 获取到父组件el-form的rule和自己的
@@ -179,6 +180,9 @@ export default {
         this.$on('xl.form.blur', this.onFieldBlur)
         this.$on('xl.form.change', this.onFieldChange)
       }
+    },
+    removeValidateEvents() {
+      this.$off()
     }
   },
   inject: ['xlForm'],

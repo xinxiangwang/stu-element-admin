@@ -10,7 +10,7 @@ export default {
         }
       }
       if (parent) {
-        parent.$emit(eventName, params)
+        parent.$emit.apply(parent, [eventName].concat(params))
       }
     }
   }

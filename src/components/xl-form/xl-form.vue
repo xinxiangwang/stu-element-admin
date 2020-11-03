@@ -50,11 +50,9 @@ export default {
   watch: {
     rules() {
       this.fields.forEach(field => { // 请除子组件注册的事件，重新注册
-        console.log(field)
         field.removeValidateEvents()
         field.addValidateEvents()
       })
-      console.log('zxzz')
       if (this.validateOnRuleChange) {
         this.validate(() => {})
       }
@@ -74,8 +72,15 @@ export default {
     })
   },
   methods: {
+    resetFields() {
+      if (!this.model) {
+        return
+      }
+      this.fields.forEach(field => {
+        field.resetField()
+      })
+    },
     validate(callback) {
-      console.log('123')
       if (!this.model) {
         return
       }
@@ -100,11 +105,30 @@ export default {
           }
           invalidFields = objectAssign({}, invalidFields, field)
           if (typeof callback === 'function' && ++count === this.fields.length) { // 循环到最后一次
-            callback(valid, invalidFields) // 如果有一个验证错误 valid就为false， invalidFields为所有验证rules
+            // 如果有一个验证错误 valid就为false， invalidFields为验证没有通过的项
+            callback(valid, invalidFields)
           }
         })
       })
       if (promise) return promise
+    },
+    clearValidate(props = []) {
+      const fields = props.length
+        ? this.fields.filter(field => {
+          return typeof props === 'string'
+            ? props === field.prop
+            : props.indexOf(field.prop) > -1
+        }) : this.fields
+    },
+    validateField(props, cb) {
+      props = [].concat(props)
+      const fields = this.fields.filter(field => props.indexOf(field.prop) !== -1)
+      if (!fields.length) {
+        return
+      }
+      fields.forEach(field => {
+        field.validate('', cb)
+      })
     },
     registerLabelWidth(val, oldVal) {
       if (val && oldVal) {

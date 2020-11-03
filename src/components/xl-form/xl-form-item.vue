@@ -110,6 +110,7 @@ export default {
         value: initialValue
       })
       this.addValidateEvents()
+      console.log(this)
     }
   },
   methods: {
@@ -140,9 +141,27 @@ export default {
         this.validateState = !errors ? 'success' : 'error'
         this.validateMessage = errors ? errors[0].message : ''
         callback(this.validateMessage, invalidFields)
-        console.log(this.validateMessage)
-        console.log(invalidFields)
         this.xlForm && this.xlForm.$emit('validate')
+      })
+    },
+    resetField() { // 重置所有表单项恢复初始值
+      this.validateMessage = ''
+      this.validateState = ''
+      const model = this.form.model
+      const value = this.fieldValue // 当前验证项的值
+      let path = this.prop
+      if (path.indexOf(':') !== -1) {
+        path = path.replace(/:/, '.')
+      }
+      const prop = getPropByPath(model, path, true)
+      this.validateDisabled = true // 防止充值组件值的时候触发onFieldChange事件
+      if (Array.isArray(value)) {
+        prop.o[prop.k] = [].concat(this.initialValue) // 恢复数组默认值
+      } else {
+        prop.o[prop.k] = this.initialValue
+      }
+      this.$nextTick(() => {
+        this.validateDisabled = false
       })
     },
     getRules() { // 获取到父组件el-form的rule和自己的

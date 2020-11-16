@@ -14,6 +14,7 @@ import XlRow from '@/components/xl-row'
 import XlRadio from '@/components/xl-radio'
 import XlInput from '@/components/xl-input'
 import XlForm from '@/components/xl-form'
+import XlDropdown from '@/components/xl-dropdown'
 
 Vue.use(ElementUI, { locale })
 
@@ -22,6 +23,7 @@ Vue.use(XlRow)
 Vue.use(XlRadio)
 Vue.use(XlInput)
 Vue.use(XlForm)
+Vue.use(XlDropdown)
 
 Vue.config.productionTip = false
 

@@ -6,7 +6,8 @@
         type="text"
         @compositionstart="onCompositionStart"
         @compositionupdate="onCompositionUpdate"
-        @compositionend="onCompositionEnd">
+        @compositionend="onCompositionEnd"
+      >
     </label>
   </div>
 </template>

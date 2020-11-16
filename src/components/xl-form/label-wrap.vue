@@ -19,24 +19,22 @@ export default {
       computedWidth: 0
     }
   },
-  render() {
-    const slots = this.$slots.default
-    if (!slots) return null
-    if (this.isAutoWidth) {
-      const autoLabelWidth = this.xlForm.autoLabelWidth
-      const style = {}
-      if (autoLabelWidth && autoLabelWidth !== 'auto') {
-        const marginLeft = parseInt(autoLabelWidth, 10) - this.computedWidth
-        if (marginLeft) {
-          style.marginLeft = marginLeft + 'px'
-        }
+  watch: {
+    computedWidth(val, oldVal) {
+      // 如果是xl-form上写了label-width="auto" 那么组件每次更新都修改xlForm中的 autoLabelWidth
+      if (this.updateAll) {
+        this.xlForm.registerLabelWidth(val, oldVal)
       }
-      return (<div class='el-form-item__label-wrap' style={style}>
-        { slots }
-      </div>)
-    } else {
-      return slots[0]
     }
+  },
+  mounted() {
+    this.updateLabelWidth('update')
+  },
+  updated() {
+    this.updateLabelWidth('update')
+  },
+  beforeDestroy() {
+    // this.updateLabelWidth('remove')
   },
   methods: {
     getLabelWidth() {
@@ -57,22 +55,24 @@ export default {
       }
     }
   },
-  watch: {
-    computedWidth(val, oldVal) {
-      // 如果是xl-form上写了label-width="auto" 那么组件每次更新都修改xlForm中的 autoLabelWidth
-      if (this.updateAll) {
-        this.xlForm.registerLabelWidth(val, oldVal)
+  render() {
+    const slots = this.$slots.default
+    if (!slots) return null
+    if (this.isAutoWidth) {
+      const autoLabelWidth = this.xlForm.autoLabelWidth
+      const style = {}
+      if (autoLabelWidth && autoLabelWidth !== 'auto') {
+        const marginLeft = parseInt(autoLabelWidth, 10) - this.computedWidth
+        if (marginLeft) {
+          style.marginLeft = marginLeft + 'px'
+        }
       }
+      return (<div class='el-form-item__label-wrap' style={style}>
+        { slots }
+      </div>)
+    } else {
+      return slots[0]
     }
-  },
-  mounted() {
-    this.updateLabelWidth('update')
-  },
-  updated() {
-    this.updateLabelWidth('update')
-  },
-  beforeDestroy() {
-    // this.updateLabelWidth('remove')
   }
 }
 </script>

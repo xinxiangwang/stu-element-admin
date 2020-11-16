@@ -2,8 +2,9 @@
   <component
     :is="_elTag"
     class="el-radio-group"
-    role="radiogroup">
-    <slot></slot>
+    role="radiogroup"
+  >
+    <slot />
   </component>
 </template>
 <script>
@@ -13,15 +14,15 @@ export default {
   props: {
     value: {}
   },
-  created() {
-    this.$on('handleChange', value => {
-      this.$emit('change', value)
-    })
-  },
   computed: {
     _elTag() {
       return (this.$vnode.data || {}).tag || 'div'
     }
+  },
+  created() {
+    this.$on('handleChange', value => {
+      this.$emit('change', value)
+    })
   }
 }
 </script>

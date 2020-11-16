@@ -12,27 +12,28 @@
     :aria-disabled="isDisabled"
     :tabindex="tabIndex"
     @keydown.space.stop.prevent="model = isDisabled ? model : label"
-    >
+  >
     <span class="el-radio__input" :class="{ 'is-disabled': isDisabled, 'is-checked': model === label }">
       <span
-       class="el-radio__inner"
-       :class="{ 'is-disabled': isDisabled, 'is-checked': model === label }">
-      </span>
+        class="el-radio__inner"
+        :class="{ 'is-disabled': isDisabled, 'is-checked': model === label }"
+      />
       <input
-       ref="radio"
-       class="el-radio__original"
-       :value="label"
-       type="radio"
-       aria-hidden="true"
-       v-model="model"
-       @focus="focus = true"
-       @blur="focus = false"
-       :name="name"
-       :disabled="isDisabled"
-       tabindex="-1" />
+        ref="radio"
+        v-model="model"
+        class="el-radio__original"
+        :value="label"
+        type="radio"
+        aria-hidden="true"
+        :name="name"
+        :disabled="isDisabled"
+        tabindex="-1"
+        @focus="focus = true"
+        @blur="focus = false"
+      >
     </span>
     <span class="el-radio__label">
-      <slot></slot>
+      <slot />
       <template v-if="!$slots.default">
         {{ label }}
       </template>
@@ -45,11 +46,6 @@ export default {
   name: 'XlRadio',
   componentName: 'XlRadio',
   mixins: [Emitter],
-  data() {
-    return {
-      focus: false
-    }
-  },
   model: {
     prop: 'radioValue',
     event: 'radioValueChange'
@@ -61,6 +57,11 @@ export default {
     name: String,
     border: Boolean,
     size: String
+  },
+  data() {
+    return {
+      focus: false
+    }
   },
   computed: {
     model: {
@@ -97,13 +98,13 @@ export default {
       return 0
     }
   },
+  mounted() {
+    console.log(this.$vnode)
+  },
   methods: {
     setParent(parent) {
       this._radioGroup = parent
     }
-  },
-  mounted() {
-    console.log(this.$vnode)
   }
 }
 </script>

@@ -1,67 +1,69 @@
 <template>
   <div
-  :class="[
-    type === 'textarea' ? 'el-textarea' : 'el-input',
-    inputSize ? 'el-input--' + inputSize : '',
-    {
-      'is-disabled': inputDisabled,
-      'is-exceed': inputExceed,
-      'el-input-group': $slots.prepend || $slots.append,
-      'el-input-group--append': $slots.append,
-      'el-input-group--append': $slots.append,
-      'el-input-group--prepend': $slots.prepend,
-      'el-input--prefix': $slots.prefix || prefixIcon,
-      'el-input--suffix': $slots.suffix || suffixIcon || clearable || showPassword
-    }
-  ]"
-  @mouseenter="hovering = true"
-  @mouseleave="hovering = false">
+    :class="[
+      type === 'textarea' ? 'el-textarea' : 'el-input',
+      inputSize ? 'el-input--' + inputSize : '',
+      {
+        'is-disabled': inputDisabled,
+        'is-exceed': inputExceed,
+        'el-input-group': $slots.prepend || $slots.append,
+        'el-input-group--append': $slots.append,
+        'el-input-group--append': $slots.append,
+        'el-input-group--prepend': $slots.prepend,
+        'el-input--prefix': $slots.prefix || prefixIcon,
+        'el-input--suffix': $slots.suffix || suffixIcon || clearable || showPassword
+      }
+    ]"
+    @mouseenter="hovering = true"
+    @mouseleave="hovering = false"
+  >
     <template v-if="type !== 'textarea'">
-      <div class="el-input-group__prepend" v-if="$slots.prepend">
-        <slot name="prepend"></slot>
+      <div v-if="$slots.prepend" class="el-input-group__prepend">
+        <slot name="prepend" />
       </div>
       <input
-      ref="input"
-      :tabindex="tabindex"
-      v-if="type !== 'textarea'"
-      class="el-input__inner"
-      v-bind="$attrs"
-      :type="showPassword ? (passwordVisible ? 'text' : 'password') : type"
-      :disabled="inputDisabled"
-      :autocomplete="autocomplete || autoComplete"
-      :readonly="readonly"
-      @compositionstart="onCompositionStart"
-      @compositionupdate="onCompositionUpdate"
-      @compositionend="onCompositionEnd"
-      @input="onInput"
-      @focus="onFocus"
-      @change="handleChange"
-      @blur="onBlur">
-      <span class="el-input__prefix" v-if="$slots.prefix || prefixIcon">
-        <slot name="prefix"></slot>
-        <i class="el-input__icon" v-if="prefixIcon" :class="prefixIcon"></i>
+        v-if="type !== 'textarea'"
+        ref="input"
+        :tabindex="tabindex"
+        class="el-input__inner"
+        v-bind="$attrs"
+        :type="showPassword ? (passwordVisible ? 'text' : 'password') : type"
+        :disabled="inputDisabled"
+        :autocomplete="autocomplete || autoComplete"
+        :readonly="readonly"
+        @compositionstart="onCompositionStart"
+        @compositionupdate="onCompositionUpdate"
+        @compositionend="onCompositionEnd"
+        @input="onInput"
+        @focus="onFocus"
+        @change="handleChange"
+        @blur="onBlur"
+      >
+      <span v-if="$slots.prefix || prefixIcon" class="el-input__prefix">
+        <slot name="prefix" />
+        <i v-if="prefixIcon" class="el-input__icon" :class="prefixIcon" />
       </span>
-      <span class="el-input__suffix" v-if="getSuffixVisible()">
+      <span v-if="getSuffixVisible()" class="el-input__suffix">
         <span class="el-input__suffix-inner">
           <template v-if="!showClear || !showPwdVisible || !isWordLimitVisible">
-            <slot name="suffix"></slot>
-            <i class="el-input__icon" v-if="suffixIcon" :class="suffixIcon"></i>
+            <slot name="suffix" />
+            <i v-if="suffixIcon" class="el-input__icon" :class="suffixIcon" />
           </template>
 
           <i
             v-if="showClear"
             class="el-input__icon el-icon-circle-close el-input_clear"
-            @click="clear">
-          </i>
+            @click="clear"
+          />
           <i
             v-if="showPwdVisible"
             class="el-input__icon el-icon-view el-input__clear"
             @click="handlePasswordVisible"
-          ></i>
+          />
         </span>
       </span>
-      <div class="el-input-group__append" v-if="$slots.append">
-        <slot name="append"></slot>
+      <div v-if="$slots.append" class="el-input-group__append">
+        <slot name="append" />
       </div>
     </template>
   </div>
@@ -153,6 +155,9 @@ export default {
         !this.readonly
     }
   },
+  mounted() {
+    this.updateIconOffset()
+  },
   methods: {
     onCompositionStart() {
       this.isComposing = true
@@ -191,7 +196,7 @@ export default {
       this.calcIconOffset('suffix')
     },
     calcIconOffset(place) { // 找到prefix或suffix那个元素 计算位置
-      let elList = Array.from(this.$el.querySelectorAll(`.el-input__${place}`))
+      const elList = Array.from(this.$el.querySelectorAll(`.el-input__${place}`))
       if (!elList.length) return
       let el = null
       elList.some(item => {
@@ -227,9 +232,6 @@ export default {
       console.log()
       this.getInput().focus()
     }
-  },
-  mounted() {
-    this.updateIconOffset()
   }
 }
 </script>

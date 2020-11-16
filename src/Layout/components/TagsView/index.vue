@@ -8,11 +8,12 @@
       class="tags-view-item"
       :class="isActive(view) ? 'active' : ''"
       :to="{ path: view.path, qeury: view.query, fullPath: view.fullPath }"
-      @contextmenu.prevent.native="openMenu(view, $event)">
+      @contextmenu.prevent.native="openMenu(view, $event)"
+    >
       {{ view.title }}
-      <span class="el-icon-close" @click.prevent.stop="closeSelectedTag(view)"></span>
+      <span class="el-icon-close" @click.prevent.stop="closeSelectedTag(view)" />
     </router-link>
-    <ul class="contextmenu" :style="{ left: left + 'px', top: top + 'px' }" v-show="visible">
+    <ul v-show="visible" class="contextmenu" :style="{ left: left + 'px', top: top + 'px' }">
       <li @click="refreshSelectTag(selectedTag)">刷新</li>
       <li @click="closeSelectedTag(selectedTag)">关闭</li>
       <li @click="closeNoSelectedTag(selectedTag)">关闭其他</li>
@@ -31,6 +32,11 @@ export default {
       selectedTag: null
     }
   },
+  computed: {
+    visitedViews() {
+      return this.$store.state.tagsView.visitedViews
+    }
+  },
   watch: {
     $route() {
       this.addTags()
@@ -41,11 +47,6 @@ export default {
       } else {
         document.body.removeEventListener('click', this.closeMenu)
       }
-    }
-  },
-  computed: {
-    visitedViews() {
-      return this.$store.state.tagsView.visitedViews
     }
   },
   mounted() {

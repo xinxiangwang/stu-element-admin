@@ -1,10 +1,19 @@
 <template>
   <div>
-    <xl-dropdown split-button bbb="" @click="handleClick">
-      <xl-dropdown-menu></xl-dropdown-menu>
+    <xl-dropdown @click="handleClick">
+      <span class="el-dropdown-link">
+        下拉菜单<i class="el-icon-arrow-down el-icon--right"></i>
+      </span>
+      <xl-dropdown-menu slot="dropdown">
+        <xl-dropdown-item>黄金糕</xl-dropdown-item>
+        <xl-dropdown-item>狮子头</xl-dropdown-item>
+        <xl-dropdown-item>螺蛳粉</xl-dropdown-item>
+        <xl-dropdown-item>双皮奶</xl-dropdown-item>
+        <xl-dropdown-item>蚵仔煎</xl-dropdown-item>
+      </xl-dropdown-menu>
     </xl-dropdown>
     <hr>
-    <el-dropdown>
+    <el-dropdown trigger="click">
       <span class="el-dropdown-link">
         下拉菜单<i class="el-icon-arrow-down el-icon--right"></i>
       </span>

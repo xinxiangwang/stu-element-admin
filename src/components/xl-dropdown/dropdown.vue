@@ -1,9 +1,10 @@
 <script>
 import Migrating from '../../mixins/migrating'
 import Clickoutside from '../../utils/clickoutside'
+import { generateId } from '../../utils/util'
 export default {
   name: 'XlDropdown',
-  componentName: 'ElDropdown',
+  componentName: 'XlDropdown',
   mixins: [Migrating],
   directives: { Clickoutside },
   props: {
@@ -16,11 +17,20 @@ export default {
     size: {
       type: String,
       default: ''
+    },
+    hideOnClick: {
+      type: Boolean,
+      default: true
+    },
+    tabindex: {
+      type: Number,
+      default: 0
     }
   },
   provide() {
     return {
-      dropdown: this
+      dropdown: this,
+      visible: false
     }
   },
   data() {
@@ -28,7 +38,8 @@ export default {
       triggerElm: null, // 触发dropdownElm显示的元素
       menuItems: null,
       menuItemsArray: null,
-      dropdownElm: null // dropmenu
+      dropdownElm: null, // dropmenu
+      listId: `dropdown-menu-${generateId()}`
     }
   },
   computed: {
@@ -45,12 +56,49 @@ export default {
       }
     },
     initEvent() {
-      let { splitButton } = this
+      let { splitButton, handleTriggerKeyDown } = this
       this.triggerElm = splitButton
         ? this.$refs.trigger.$el // 获取button形态右侧的下拉开关
         : this.$slots.default[0].elm
       // let dropdownElm = this.dropdownElm
-      this.triggerElm.addEventListener('keydown')
+      this.triggerElm.addEventListener('keydown', handleTriggerKeyDown) // 给触发按钮注册键盘事件
+    },
+    initAria() {
+      this.dropdownElm.setAttribute('id', this.listId)
+      this.triggerElm.setAttribute('aria-haspopup', 'list')
+      this.triggerElm.setAttribute('aria-controls', this.listId)
+      if (!this.splitButton) {
+        this.triggerElm.setAttribute('role', 'button')
+        this.triggerElm.setAttribute('tabindex', this.tabindex)
+        this.triggerElm.setAttribute('class', (this.triggerElm.getAttribute('class') || '') + ' el-dropdown-selfdefine') // 控制
+      }
+    },
+    handleTriggerKeyDown(e) { // 触发按钮注册键盘监听事件
+      const keyCode = e.keyCode
+      if ([38, 40].indexOf(keyCode) > -1) {
+        this.removeTabindex();
+      }
+    },
+    handleItemKeyDown(e) {
+      const keyCode = e.keyCode
+      const target = e.target
+      const currentIndex = this.menuItemsArray.indexOf(target)
+      const max = this.menuItemsArray.length - 1
+      let nextIndex
+      // if ([38, 40].indexOf(keyCode) > -1) {
+      //   if (keyCode === 38) {
+      //     nextIndex = currentIndex !== 0 ? currentIndex - 1
+      //   } else {
+
+      //   }
+      // }
+      console.log(currentIndex)
+    },
+    removeTabindex() {
+      this.triggerElm.setAttribute('tabindex', '-1')
+      this.menuItemsArray.forEach((item) => {
+        item.setAttribute('tabindex', '-1')
+      })
     },
     hide() {
       console.log('hide被调用了')
@@ -60,7 +108,17 @@ export default {
       this.menuItems = this.dropdownElm.querySelectorAll('[tabindex="-1"]')
       this.menuItemsArray = [...this.menuItems]
       this.initEvent()
+      this.initAria()
+    },
+    handleMenuItemClick(command, instance) { // dropdown menu item点击时调用
+      if (this.hideOnClick) {
+        this.visible = false
+      }
+      this.$emit('command', command, instance) // 触发组件绑定的@command事件
     }
+  },
+  mounted() {
+    this.$on('menu-item-click', this.handleMenuItemClick)
   },
   render() {
     const { splitButton, type, hide } = this

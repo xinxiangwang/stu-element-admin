@@ -80,9 +80,6 @@ export default {
         field.resetField()
       })
     },
-    clearValidate(props = []) {
-      const fields = props.length ? 
-    },
     validate(callback) {
       if (!this.model) {
         return

@@ -83,8 +83,8 @@ export default {
         this.triggerElm.setAttribute('class', (this.triggerElm.getAttribute('class') || '') + ' el-dropdown-selfdefine') // 控制
       }
     },
-     // 触发按钮注册键盘监听事件，焦点由triggerElm 转移到 menuItems ul列表上
-     // 转移后 再按上下就触发handleItemKeyDown了
+    // 触发按钮注册键盘监听事件，焦点由triggerElm 转移到 menuItems ul列表上
+    // 转移后 再按上下就触发handleItemKeyDown了
     handleTriggerKeyDown(e) {
       const keyCode = e.keyCode
       if ([38, 40].indexOf(keyCode) > -1) {
@@ -114,8 +114,6 @@ export default {
         this.menuItems[nextIndex].focus()
         e.preventDefault()
         e.stopPropagation()
-      } else if (keyCode === 13) {
-        
       }
       // const currentIndex = this.menuItemsArray.indexOf(target)
       // const max = this.menuItemsArray.length - 1

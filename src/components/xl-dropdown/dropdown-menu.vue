@@ -23,6 +23,11 @@ export default {
       size: this.dropdown.dropdownSize
     }
   },
+  created() {
+    this.$on('visible', val => {
+      this.showPopper = val
+    })
+  },
   mounted() {
     this.dropdown.popperElm = this.popperElm = this.$el
     this.referenceElm = this.dropdown.$el

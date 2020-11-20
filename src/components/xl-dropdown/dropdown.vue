@@ -1,11 +1,12 @@
 <script>
 import Migrating from '../../mixins/migrating'
+import Emitter from '../../mixins/emitter'
 import Clickoutside from '../../utils/clickoutside'
 import { generateId } from '../../utils/util'
 export default {
   name: 'XlDropdown',
   componentName: 'XlDropdown',
-  mixins: [Migrating],
+  mixins: [Migrating, Emitter],
   directives: { Clickoutside },
   props: {
     splitButton: Boolean,
@@ -29,8 +30,13 @@ export default {
   },
   provide() {
     return {
-      dropdown: this,
-      visible: false
+      dropdown: this
+    }
+  },
+  watch: {
+    visible(val) {
+      this.broadcast('XlDropdownMenu', 'visible', val)
+      this.$emit('visible-change', val)
     }
   },
   data() {
@@ -39,7 +45,8 @@ export default {
       menuItems: null,
       menuItemsArray: null,
       dropdownElm: null, // dropmenu
-      listId: `dropdown-menu-${generateId()}`
+      listId: `dropdown-menu-${generateId()}`,
+      visible: false
     }
   },
   computed: {
@@ -56,12 +63,15 @@ export default {
       }
     },
     initEvent() {
-      let { splitButton, handleTriggerKeyDown } = this
+      let { splitButton, handleItemKeyDown, handleTriggerKeyDown, handleClick } = this
+      let dropdownElm = this.dropdownElm
       this.triggerElm = splitButton
         ? this.$refs.trigger.$el // 获取button形态右侧的下拉开关
         : this.$slots.default[0].elm
       // let dropdownElm = this.dropdownElm
       this.triggerElm.addEventListener('keydown', handleTriggerKeyDown) // 给触发按钮注册键盘事件
+      dropdownElm.addEventListener('keydown', handleItemKeyDown, true)
+      this.triggerElm.addEventListener('click', handleClick)
     },
     initAria() {
       this.dropdownElm.setAttribute('id', this.listId)
@@ -73,35 +83,63 @@ export default {
         this.triggerElm.setAttribute('class', (this.triggerElm.getAttribute('class') || '') + ' el-dropdown-selfdefine') // 控制
       }
     },
-    handleTriggerKeyDown(e) { // 触发按钮注册键盘监听事件
+     // 触发按钮注册键盘监听事件，焦点由triggerElm 转移到 menuItems ul列表上
+     // 转移后 再按上下就触发handleItemKeyDown了
+    handleTriggerKeyDown(e) {
       const keyCode = e.keyCode
       if ([38, 40].indexOf(keyCode) > -1) {
-        this.removeTabindex();
+        this.removeTabindex()
+        this.resetTabindex(this.menuItems[0])
+        this.menuItems[0].focus()
+        e.preventDefault()
+        e.stopPropagation()
       }
     },
+    // 切换ul列表焦点
     handleItemKeyDown(e) {
       const keyCode = e.keyCode
       const target = e.target
       const currentIndex = this.menuItemsArray.indexOf(target)
       const max = this.menuItemsArray.length - 1
       let nextIndex
+      if ([38, 40].indexOf(keyCode) > -1) {
+        // asda
+        if (keyCode === 38) {
+          nextIndex = currentIndex !== 0 ? currentIndex - 1 : 0
+        } else {
+          nextIndex = currentIndex < max ? currentIndex + 1 : max
+        }
+        this.removeTabindex()
+        this.resetTabindex(this.menuItems[nextIndex])
+        this.menuItems[nextIndex].focus()
+        e.preventDefault()
+        e.stopPropagation()
+      } else if (keyCode === 13) {
+        
+      }
+      // const currentIndex = this.menuItemsArray.indexOf(target)
+      // const max = this.menuItemsArray.length - 1
+      // let nextIndex
       // if ([38, 40].indexOf(keyCode) > -1) {
       //   if (keyCode === 38) {
       //     nextIndex = currentIndex !== 0 ? currentIndex - 1
       //   } else {
-
       //   }
       // }
-      console.log(currentIndex)
+      console.log(keyCode)
     },
-    removeTabindex() {
+    removeTabindex() { // 清除menuitems中元素的tabIndex
       this.triggerElm.setAttribute('tabindex', '-1')
       this.menuItemsArray.forEach((item) => {
         item.setAttribute('tabindex', '-1')
       })
     },
+    resetTabindex(ele) {
+      // this.removeTabindex()
+      ele.setAttribute('tabindex', '0')
+    },
     hide() {
-      console.log('hide被调用了')
+      this.visible = false
     },
     initDomOperation() { // dropdown menu mounted时调用
       this.dropdownElm = this.popperElm // popperElm 是子组件mounted传进来的
@@ -115,6 +153,18 @@ export default {
         this.visible = false
       }
       this.$emit('command', command, instance) // 触发组件绑定的@command事件
+    },
+    handleClick() {
+      if (this.triggerElm.disabled) return
+      if (this.visible) {
+        this.hide()
+      } else {
+        this.show()
+      }
+    },
+    show() {
+      if (this.triggerElm.disabled) return
+      this.visible = true
     }
   },
   mounted() {

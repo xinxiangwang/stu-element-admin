@@ -5,11 +5,12 @@
       'is-disabled': disabled,
       'el-dropdown-menu__item--divided': divided
     }"
-    @click="handleClick"
     :aria-disabled="disabled"
-    :tabindex="disabled ? null : -1">
-    <i :class="icon" v-if="icon"></i>
-    <slot></slot>
+    :tabindex="disabled ? null : -1"
+    @click="handleClick"
+  >
+    <i v-if="icon" :class="icon" />
+    <slot />
   </li>
 </template>
 <script>

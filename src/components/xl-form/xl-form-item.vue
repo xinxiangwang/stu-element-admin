@@ -113,8 +113,11 @@ export default {
       console.log(this)
     }
   },
+  beforeDestroy() {
+    this.dispatch('XlForm', 'xl.form.removeField', [this])
+  },
   methods: {
-    clearValidate() {
+    clearValidate() { // 请除验证状态 消息
       this.validateState = ''
       this.validateMessage = ''
       this.validateDisabled = false

@@ -15,6 +15,7 @@ import XlRadio from '@/components/xl-radio'
 import XlInput from '@/components/xl-input'
 import XlForm from '@/components/xl-form'
 import XlDropdown from '@/components/xl-dropdown'
+import XlMessage from '@/components/xl-message'
 
 Vue.use(ElementUI, { locale })
 
@@ -24,6 +25,7 @@ Vue.use(XlRadio)
 Vue.use(XlInput)
 Vue.use(XlForm)
 Vue.use(XlDropdown)
+Vue.prototype.$message = XlMessage
 
 Vue.config.productionTip = false
 

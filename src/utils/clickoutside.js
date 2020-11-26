@@ -55,7 +55,7 @@ export default {
     }
   },
   unbind(el) { // 解绑时 从nodeList中删除对应dom，并且删除dom对象中的ctx属性
-    let len = nodeList.length
+    const len = nodeList.length
     for (let i = 0; i < len; i++) {
       if (nodeList[i][ctx].id === el[ctx].id) {
         nodeList.splice(i, 1)

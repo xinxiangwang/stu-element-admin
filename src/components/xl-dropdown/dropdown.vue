@@ -6,8 +6,8 @@ import { generateId } from '../../utils/util'
 export default {
   name: 'XlDropdown',
   componentName: 'XlDropdown',
-  mixins: [Migrating, Emitter],
   directives: { Clickoutside },
+  mixins: [Migrating, Emitter],
   props: {
     splitButton: Boolean,
     type: String,
@@ -33,12 +33,6 @@ export default {
       dropdown: this
     }
   },
-  watch: {
-    visible(val) {
-      this.broadcast('XlDropdownMenu', 'visible', val)
-      this.$emit('visible-change', val)
-    }
-  },
   data() {
     return {
       triggerElm: null, // 触发dropdownElm显示的元素
@@ -54,6 +48,15 @@ export default {
       return this.size
     }
   },
+  watch: {
+    visible(val) {
+      this.broadcast('XlDropdownMenu', 'visible', val)
+      this.$emit('visible-change', val)
+    }
+  },
+  mounted() {
+    this.$on('menu-item-click', this.handleMenuItemClick)
+  },
   methods: {
     getMigratingConfig() {
       return {
@@ -63,8 +66,8 @@ export default {
       }
     },
     initEvent() {
-      let { splitButton, handleItemKeyDown, handleTriggerKeyDown, handleClick } = this
-      let dropdownElm = this.dropdownElm
+      const { splitButton, handleItemKeyDown, handleTriggerKeyDown, handleClick } = this
+      const dropdownElm = this.dropdownElm
       this.triggerElm = splitButton
         ? this.$refs.trigger.$el // 获取button形态右侧的下拉开关
         : this.$slots.default[0].elm
@@ -87,12 +90,16 @@ export default {
     // 转移后 再按上下就触发handleItemKeyDown了
     handleTriggerKeyDown(e) {
       const keyCode = e.keyCode
-      if ([38, 40].indexOf(keyCode) > -1) {
+      if ([38, 40].indexOf(keyCode) > -1) { // 上下
         this.removeTabindex()
         this.resetTabindex(this.menuItems[0])
         this.menuItems[0].focus()
         e.preventDefault()
         e.stopPropagation()
+      } else if (keyCode === 13) { // enter
+        this.handleClick()
+      } else if ([9, 27].indexOf(keyCode) > -1) { // tab esc
+        this.hide()
       }
     },
     // 切换ul列表焦点
@@ -114,16 +121,16 @@ export default {
         this.menuItems[nextIndex].focus()
         e.preventDefault()
         e.stopPropagation()
+      } else if (keyCode === 13) { // 如果选中列表某一项 重新聚焦回triggerElm
+        this.triggerElmFocus()
+        target.click()
+        if (this.hideOnClick) {
+          this.visible = false
+        }
+      } else if ([9, 27].indexOf(keyCode) > -1) {
+        this.hide()
+        this.triggerElmFocus()
       }
-      // const currentIndex = this.menuItemsArray.indexOf(target)
-      // const max = this.menuItemsArray.length - 1
-      // let nextIndex
-      // if ([38, 40].indexOf(keyCode) > -1) {
-      //   if (keyCode === 38) {
-      //     nextIndex = currentIndex !== 0 ? currentIndex - 1
-      //   } else {
-      //   }
-      // }
       console.log(keyCode)
     },
     removeTabindex() { // 清除menuitems中元素的tabIndex
@@ -138,6 +145,10 @@ export default {
     },
     hide() {
       this.visible = false
+    },
+    triggerElmFocus() {
+      console.log(this.triggerElm)
+      this.triggerElm.focus && this.triggerElm.focus()
     },
     initDomOperation() { // dropdown menu mounted时调用
       this.dropdownElm = this.popperElm // popperElm 是子组件mounted传进来的
@@ -164,9 +175,6 @@ export default {
       if (this.triggerElm.disabled) return
       this.visible = true
     }
-  },
-  mounted() {
-    this.$on('menu-item-click', this.handleMenuItemClick)
   },
   render() {
     const { splitButton, type, hide } = this

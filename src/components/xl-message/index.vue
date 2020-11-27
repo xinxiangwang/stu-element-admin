@@ -43,7 +43,16 @@ export default {
       timer: null,
       duration: 3000,
       dangerouslyUseHTMLString: false,
-      message: ''
+      message: '',
+      closed: false
+    }
+  },
+  watch: {
+    closed(newVal) {
+      console.log(newVal)
+      if (newVal) {
+        this.visible = false
+      }
     }
   },
   computed: {
@@ -66,6 +75,7 @@ export default {
     close() {
       this.closed = true
       if (typeof this.onClose === 'function') {
+        console.log('asdasd')
         this.onClose(this)
       }
     },
@@ -76,7 +86,7 @@ export default {
       if (this.duration > 0) {
         this.timer = setTimeout(() => {
           if (!this.closed) {
-            this.close
+            this.close()
           }
         }, this.duration)
       }

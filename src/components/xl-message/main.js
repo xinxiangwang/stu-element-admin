@@ -31,11 +31,14 @@ const Message = function(options) {
   }
   instance.$mount() // 主动让组件mount
   document.body.appendChild(instance.$el)
-  const verticalOffset = options.offset || 20
+  let verticalOffset = options.offset || 20
+  instances.forEach(item => {
+    verticalOffset += item.$el.offsetHeight + 16
+  })
   instance.verticalOffset = verticalOffset
   instance.visible = true
   instance.$el.style.zIndex = PopupManager.nextZIndex()
-  instances.push(instances)
+  instances.push(instance)
 
   return instance
 }
@@ -69,7 +72,7 @@ Message.close = function(id, userOnClose) {
   }
 
   if (len <= 1 || index === -1 || index > instances.length - 1) return
-  for (let i = index; i < len; i++) {
+  for (let i = index; i < len - 1; i++) {
     const dom = instances[i].$el
     dom.style['top'] = parseInt(dom.style['top'], 10) - removeHeight - 16 + 'px'
   }

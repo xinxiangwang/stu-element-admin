@@ -22,5 +22,4 @@ Object.defineProperty(PopupManager, 'zIndex', {
     zIndex = value
   }
 })
-
-export default PopupManager
+export { PopupManager }

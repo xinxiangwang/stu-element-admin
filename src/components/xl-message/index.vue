@@ -1,6 +1,7 @@
 <template>
   <transition name="el-message-fade" @after-leave="handleAfterLeave">
     <div
+      v-show="visible"
       :class="[
         'el-message',
         type && !iconClass ? `el-message--${ type }` : '',
@@ -9,17 +10,17 @@
         customClass
       ]"
       :style="positionStyle"
-      v-show="visible"
+      role="alert"
       @mouseenter="clearTimer"
       @mouseleave="startTimer"
-      role="alert">
-      <i :class="iconClass" v-if="iconClass"></i>
-      <i :class="typeClass" v-else></i>
+    >
+      <i v-if="iconClass" :class="iconClass" />
+      <i v-else :class="typeClass" />
       <slot>
-        <p v-if="!dangerouslyUseHTMLString" class="el-message__content"></p>
-        <p v-else v-html="message" class="el-message__content"></p>
+        <p v-if="!dangerouslyUseHTMLString" class="el-message__content" />
+        <p v-else class="el-message__content" v-html="message" />
       </slot>
-      <i v-if="showClose" class="el-message__closeBtn el-icon-close" @click="close"></i>
+      <i v-if="showClose" class="el-message__closeBtn el-icon-close" @click="close" />
     </div>
   </transition>
 </template>
@@ -47,14 +48,6 @@ export default {
       closed: false
     }
   },
-  watch: {
-    closed(newVal) {
-      console.log(newVal)
-      if (newVal) {
-        this.visible = false
-      }
-    }
-  },
   computed: {
     positionStyle() {
       return {
@@ -66,6 +59,21 @@ export default {
         ? `el-message__icon el-icon-${typeMap[this.type]}`
         : ''
     }
+  },
+  watch: {
+    closed(newVal) {
+      console.log(newVal)
+      if (newVal) {
+        this.visible = false
+      }
+    }
+  },
+  mounted() {
+    this.startTimer()
+    document.addEventListener('keydown', this.keydown)
+  },
+  beforeDestroy() {
+    document.removeEventListener('keydown', this.keydown)
   },
   methods: {
     handleAfterLeave() {
@@ -98,13 +106,6 @@ export default {
         }
       }
     }
-  },
-  mounted() {
-    this.startTimer()
-    document.addEventListener('keydown', this.keydown)
-  },
-  beforeDestroy() {
-    document.removeEventListener('keydown', this.keydown)
   }
 }
 </script>

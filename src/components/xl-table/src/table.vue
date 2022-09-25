@@ -20,6 +20,7 @@
 </template>
 <script>
 import TableLayout from 'element-ui/packages/table/src/table-layout'
+import { createStore, mapStates } from './store/helper'
 
 export default {
   name: 'XLTable',
@@ -30,9 +31,28 @@ export default {
     },
     stripe: Boolean,
     border: Boolean,
-    maxHeight: [String, Number],
+    maxHeight: [String, Number]
+  },
+  computed: {
+    ...mapStates({
+      selection: 'selection',
+      columns: 'columns',
+      tableData: 'data',
+      fixedColumns: 'fixedColumns',
+      rightFixedColumn: 'rightFixedColumn'
+    })
   },
   data() {
+    const { hasChildren, children } = this.treeProps
+    this.store = createStore(this, {
+      rowKey: this.rowKey,
+      defaultExpandAll: this.defaultExpandAll,
+      selectOnIndeterminate: this.selectOnIndeterminate,
+      indent: this.indent,
+      lazy: this.lazy,
+      lazyColumnIdentifier: hasChildren,
+      childrenColumnName: children
+    })
     const layout = new TableLayout({
       store: this.store,
       table: this,

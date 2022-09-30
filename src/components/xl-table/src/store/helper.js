@@ -1,5 +1,5 @@
 import Store from './index'
-import debounce from 'throttle-debounce/debounce'
+import { debounce } from 'throttle-debounce'
 
 export function createStore(table, initialState = {}) {
   if (!table) {
@@ -21,11 +21,11 @@ export function mapStates(mapper) {
     let fn
     if (typeof value === 'string') {
       fn = function() {
-        return this.store.status[value]
+        return this.store.states[value]
       }
     } else if (typeof value === 'function') {
       fn = function() {
-        return value.call(this, this.store.status)
+        return value.call(this, this.store.states)
       }
     } else {
       console.error('invalid value type')

@@ -15,15 +15,16 @@
       }
     ]"
   >
-
+    <div class="hidden-columns" ref="hiddenColumns"><slot></slot></div>
   </div>
 </template>
 <script>
 import TableLayout from 'element-ui/packages/table/src/table-layout'
 import { createStore, mapStates } from './store/helper'
-
+import { debounce } from 'throttle-debounce'
+let tableIdSeed = 1
 export default {
-  name: 'XLTable',
+  name: 'XlTable',
   props: {
     fit: {
       type: Boolean,
@@ -31,7 +32,25 @@ export default {
     },
     stripe: Boolean,
     border: Boolean,
-    maxHeight: [String, Number]
+    maxHeight: [String, Number],
+    treeProps: {
+      type: Object,
+      default() {
+        return {
+          hasChildren: 'hasChildren',
+          children: 'children'
+        }
+      }
+    }
+  },
+  created() {
+    this.tableId = 'el-table_' + tableIdSeed++
+    this.debouncedUpdateLayout = debounce(50, () => this.doLayout())
+  },
+  mounted() {
+    this.store.updateColumns()
+    this.doLayout()
+    this.$ready = true
   },
   computed: {
     ...mapStates({
@@ -40,7 +59,13 @@ export default {
       tableData: 'data',
       fixedColumns: 'fixedColumns',
       rightFixedColumn: 'rightFixedColumn'
-    })
+    }),
+    shouldUpdateHeight() {
+      return this.height ||
+        this.maxHeight ||
+        this.fixedColumns.length > 0 ||
+        this.rightFixedColumns.length > 0
+    }
   },
   data() {
     const { hasChildren, children } = this.treeProps
@@ -62,6 +87,14 @@ export default {
     return {
       layout,
       isGroup: false
+    }
+  },
+  methods: {
+    doLayout() {
+      if (this.shouldUpdateHeight) {
+        this.layout.updateElsHeight()
+      }
+      this.layout.updateColumnsWidth()
     }
   }
 }

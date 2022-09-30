@@ -37,6 +37,9 @@ class TableLayout {
       throw new Error('store is required for Table Layout')
     }
   }
+  updateElsHeight() {
+    if (!this.table.$ready) return Vue.nextTick(() => this.updateElsHeight())
+  }
   addObserver(observer) {
     this.observers.push(observer)
   }

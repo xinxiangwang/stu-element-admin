@@ -1,9 +1,9 @@
 import { compose, mergeOptions, parseMinWidth, parseWidth } from './utils'
-import { cellForced } from './config'
+import { cellForced, defaultRenderCell, treeCellPrefix } from './config'
 
 let columnIdSeed = 1
 export default {
-  name: 'ElTableColumn',
+  name: 'XlTableColumn',
   props: {
     type: {
       type: String,
@@ -21,7 +21,6 @@ export default {
   },
   data() {
     return {
-      columns: [],
       isSubColumn: false
     }
   },
@@ -60,7 +59,21 @@ export default {
     const filterProps = ['filterMethod', 'filters', 'filterMultiple', 'filterOpened', 'filteredValue', 'filterPlacement']
     let column = this.getPropsData(basicProps, sortProps, selectProps, filterProps)
     column = mergeOptions(defaults, column)
-    const chains = compose(this.setColumnWidth, this.setColumnForcedProps)
+    const chains = compose(this.setColumnRenders, this.setColumnWidth, this.setColumnForcedProps)
+    column = chains(column)
+    this.columnConfig = column
+  },
+  mounted() {
+    const owner = this.owner
+    const parent = this.columnOrTableParent
+    const children = this.isSubColumn ? parent.$el.children : parent.$refs.hiddenColumns.children
+    const columnIndex = this.getColumnElIndex(children, this.$el)
+    console.log(this.columnConfig)
+    owner.store.commit('insertColumn', this.columnConfig, columnIndex, this.isSubColumn ? parent.columnConfig : null)
+  },
+  render(h) {
+    console.log('zxczxc')
+    return h('div', this.$slots.default)
   },
   methods: {
     // 当el-table-column的类型为特殊的几个类型时，有些值需要做一些强制处理
@@ -68,7 +81,7 @@ export default {
       const type = column.type
       const source = cellForced[type] || {}
       Object.keys(source).forEach(prop => {
-        let value = source[prop]
+        const value = source[prop]
         if (value !== undefined) {
           // 此处是将cellForced 与 props中传的className合并，
           column[prop] = prop === 'className' ? `${column[prop]} ${value}` : value
@@ -101,7 +114,34 @@ export default {
       let originRenderCell = column.renderCell
       if (column.type === 'expand') {
         // 待实现
-      } else {}
+      } else {
+        originRenderCell = originRenderCell || defaultRenderCell
+        column.renderCell = (h, data) => {
+          let children = null
+          if (this.$scopedSlots.default) {
+            children = this.$scopedSlots.default(data)
+          } else {
+            children = originRenderCell(h, data)
+          }
+          const prefix = treeCellPrefix(h, data)
+          const props = {
+            class: 'cell',
+            style: {}
+          }
+          if (column.showOverflowTooltip) {
+            props.class += ' el-tooltip'
+            props.style = { width: (data.column.realWidth || data.column.width) - 1 + 'px' }
+          }
+          return (<div>
+            { prefix }
+            { children }
+          </div>)
+        }
+      }
+      return column
+    },
+    getColumnElIndex(children, child) {
+      return [].indexOf.call(children, child)
     },
     getPropsData(...props) {
       return props.reduce((prev, cur) => {

@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import scrollbarWidth from './scrollbar-width'
+import header from 'element-ui/packages/header'
 
 class TableLayout {
   constructor(options) {
@@ -37,8 +38,49 @@ class TableLayout {
       throw new Error('store is required for Table Layout')
     }
   }
+  headerDisplayNone(elm) {
+    if (!elm) return true
+    let headerChild = elm
+    while (headerChild.tagName !== 'DIV') {
+      if (getComputedStyle(headerChild).display === 'none') {
+        return true
+      }
+      headerChild = headerChild.parentElement
+    }
+    return false
+  }
   updateElsHeight() {
     if (!this.table.$ready) return Vue.nextTick(() => this.updateElsHeight())
+    const { headerWrapper, appendWrapper, footerWrapper } = this.table.$refs
+    this.appendHeight = appendWrapper ? appendWrapper.offsetHeight : 0
+    if (this.showHeader && !headerWrapper) return
+
+    const headerTrElm = headerWrapper ? headerWrapper.querySelector('.el-table__header tr') : null
+    const noneHeader = this.headerDisplayNone(headerTrElm)
+    const headerHeight = this.headerHeight = !this.showHeader ? 0 : headerWrapper.offsetHeight
+    if (this.showHeader && !noneHeader && headerWrapper.offsetWidth > 0 && (this.table.columns || []).length > 0 && headerHeight < 2) {
+      return Vue.nextTick(() => this.updateElsHeight())
+    }
+  }
+  updateColumnsWidth() {
+    if (Vue.prototype.$isServer) return
+    const fit = this.fit
+    const bodyWidth = this.table.$el.clientWidth
+    let bodyMinWidth = 0
+
+    const flattenColumns = this.getFlattenColumns()
+  }
+  getFlattenColumns() {
+    const flattenColumns = []
+    const columns = this.table.columns
+    columns.forEach(column => {
+      if (column.isColumnGroup) {
+        flattenColumns.push.apply(flattenColumns, column.columns)
+      } else {
+        flattenColumns.push(column)
+      }
+    })
+    return flattenColumns
   }
   addObserver(observer) {
     this.observers.push(observer)

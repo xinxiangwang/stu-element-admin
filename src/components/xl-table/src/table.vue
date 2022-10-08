@@ -33,6 +33,7 @@ export default {
     stripe: Boolean,
     border: Boolean,
     maxHeight: [String, Number],
+    height: [String, Number],
     treeProps: {
       type: Object,
       default() {
@@ -58,7 +59,7 @@ export default {
       columns: 'columns',
       tableData: 'data',
       fixedColumns: 'fixedColumns',
-      rightFixedColumn: 'rightFixedColumn'
+      rightFixedColumns: 'rightFixedColumns'
     }),
     shouldUpdateHeight() {
       return this.height ||

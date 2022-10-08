@@ -18,6 +18,7 @@ export function mapStates(mapper) {
   const res = {}
   Object.keys(mapper).forEach(key => {
     const value = mapper[key]
+    console.log(value)
     let fn
     if (typeof value === 'string') {
       fn = function() {

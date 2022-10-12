@@ -16,15 +16,18 @@
     ]"
   >
     <div class="hidden-columns" ref="hiddenColumns"><slot></slot></div>
+    <xl-table-header ref="tableHeader" :store="store"></xl-table-header>
   </div>
 </template>
 <script>
 import TableLayout from 'element-ui/packages/table/src/table-layout'
 import { createStore, mapStates } from './store/helper'
 import { debounce } from 'throttle-debounce'
+import XlTableHeader from './table-header'
 let tableIdSeed = 1
 export default {
   name: 'XlTable',
+  components: { XlTableHeader },
   props: {
     fit: {
       type: Boolean,

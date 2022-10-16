@@ -1,5 +1,5 @@
 import { compose, mergeOptions, parseMinWidth, parseWidth } from './utils'
-import { cellForced, defaultRenderCell, treeCellPrefix } from './config'
+import { cellForced, cellStarts, defaultRenderCell, treeCellPrefix } from './config'
 
 let columnIdSeed = 1
 export default {
@@ -44,6 +44,12 @@ export default {
     },
     realMinWidth() {
       return parseMinWidth(this.minWidth)
+    },
+    realAlign() {
+      return this.align ? 'is-' + this.align : null
+    },
+    realHeaderAlign() {
+      return this.headerAlign ? 'is-' + this.headerAlign : this.realAlign
     }
   },
   created() {
@@ -52,7 +58,17 @@ export default {
     this.columnId = (parent.tableId || parent.columnId) + '_column_' + columnIdSeed++
     const type = this.type
     const sortable = this.sortable === '' ? true : this.sortable
-    const defaults = {}
+    const defaults = {
+      ...cellStarts[type],
+      id: this.columnId,
+      type: type,
+      property: this.prop || this.property,
+      align: this.realAlign,
+      headerAlign: this.realHeaderAlign,
+      // showOverflowTooltip: this.showOverflowTooltip || this.showTooltipWhenOverflow,
+      // filterable: this.filter,
+      index: this.index
+    }
     const basicProps = ['columnKey', 'label', 'className', 'labelClassName', 'type', 'renderHeader', 'formatter', 'fixed', 'resizable']
     const sortProps = ['sortMethod', 'sortBy', 'sortOrders']
     const selectProps = ['selectable', 'reserveSelection']

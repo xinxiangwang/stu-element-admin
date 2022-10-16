@@ -16,7 +16,14 @@
     ]"
   >
     <div class="hidden-columns" ref="hiddenColumns"><slot></slot></div>
-    <xl-table-header ref="tableHeader" :store="store"></xl-table-header>
+    <div v-if="showHeader" class="el-table__header-wrapper" ref="headerWrapper">
+      <xl-table-header
+        ref="tableHeader"
+        :store="store"
+        :style="{
+          width: layout.bodyWidth ? layout.bodyWidth + 'px' : ''
+        }"></xl-table-header>
+    </div>
   </div>
 </template>
 <script>
@@ -37,6 +44,10 @@ export default {
     border: Boolean,
     maxHeight: [String, Number],
     height: [String, Number],
+    showHeader: {
+      type: Boolean,
+      default: true
+    },
     treeProps: {
       type: Object,
       default() {
@@ -69,6 +80,10 @@ export default {
         this.maxHeight ||
         this.fixedColumns.length > 0 ||
         this.rightFixedColumns.length > 0
+    },
+    bodyWidth() {
+      const { bodyWidth, scrollY, gutterWidth } = this.layout
+      return bodyWidth ? bodyWidth - (scrollY ? gutterWidth : 0) + 'px' : ''
     }
   },
   data() {

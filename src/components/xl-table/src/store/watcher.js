@@ -14,6 +14,8 @@ export default Vue.extend({
   data() {
     return {
       states: {
+        data: [],
+        isComplex: false,
         originColumns: [],
         columns: [],
         _columns: [],
@@ -24,8 +26,7 @@ export default Vue.extend({
         rightFixedLeafColumns: [],
         leafColumnsLength: 0,
         fixedLeafColumnsLength: 0,
-        rightFixedLeafColumnsLength: 0,
-        isComplex: false
+        rightFixedLeafColumnsLength: 0
       }
     }
   },

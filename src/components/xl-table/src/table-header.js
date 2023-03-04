@@ -172,13 +172,16 @@ export default {
                       style={this.getHeaderCellStyle(rowIndex, cellIndex, columns, column)}
                       class={this.getHeaderCellClass(rowIndex, cellIndex, columns, column)}
                     >
-                      <div>
+                      <div class={['cell', column.labelClassName]}>
                         {
                           column.label
                         }
                       </div>
                     </th>
                   ))
+                }
+                {
+                  this.hasGutter ? <th class={'el-table__cell gutter'} /> : ''
                 }
               </tr>
             ))
